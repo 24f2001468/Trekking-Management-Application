@@ -1,4 +1,3 @@
-```md
 # Trekking Management Application (TMA)
 
 The **Trekking Management Application (TMA)** is a web-based system designed to facilitate the organization and management of trekking activities. It provides a structured platform where different types of users can interact with the system according to their roles.
@@ -58,4 +57,3 @@ The application is intended to:
 This project is currently in its initial development phase. The implementation details and additional functionalities will be added progressively.
 
 ---
-```
