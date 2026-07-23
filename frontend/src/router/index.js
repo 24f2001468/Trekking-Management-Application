@@ -6,15 +6,27 @@ import AdminDashboard from '../views/AdminDashboard.vue'
 import StaffDashboard from '../views/StaffDashboard.vue'
 import TrekkerDashboard from '../views/TrekkerDashboard.vue'
 
+import AdminHome from '../components/admin/AdminHome.vue'
+import AdminTreks from '../components/admin/AdminTreks.vue'
+import AdminUsers from '../components/admin/AdminUsers.vue'
+import AdminStaff from '../components/admin/AdminStaff.vue'
+import AdminBookings from '../components/admin/AdminBookings.vue'
+
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', name: 'Login', component: LoginView },
   { path: '/register', name: 'Register', component: RegisterView },
   { 
     path: '/admin', 
-    name: 'AdminDashboard', 
     component: AdminDashboard,
-    meta: { requiresAuth: true, role: 'Admin' }
+    meta: { requiresAuth: true, role: 'Admin' },
+    children: [
+      { path: '', name: 'AdminHome', component: AdminHome },
+      { path: 'treks', name: 'AdminTreks', component: AdminTreks },
+      { path: 'users', name: 'AdminUsers', component: AdminUsers },
+      { path: 'staff', name: 'AdminStaff', component: AdminStaff },
+      { path: 'bookings', name: 'AdminBookings', component: AdminBookings }
+    ]
   },
   { 
     path: '/staff', 

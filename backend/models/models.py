@@ -15,6 +15,15 @@ class User(db.Model):
     staff_profile = db.relationship('StaffProfile', back_populates='user', uselist=False, cascade="all, delete-orphan")
     bookings = db.relationship('Booking', back_populates='user', cascade="all, delete-orphan")
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'role': self.role,
+            'active': self.active
+        }
+
 class StaffProfile(db.Model):
     __tablename__ = 'staff_profiles'
     
@@ -27,6 +36,16 @@ class StaffProfile(db.Model):
     # Relationships
     user = db.relationship('User', back_populates='staff_profile')
     assigned_treks = db.relationship('Trek', back_populates='staff')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'name': self.name,
+            'contact_details': self.contact_details,
+            'status': self.status,
+            'user': self.user.to_dict() if self.user else None
+        }
 
 class Trek(db.Model):
     __tablename__ = 'treks'
@@ -46,6 +65,21 @@ class Trek(db.Model):
     staff = db.relationship('StaffProfile', back_populates='assigned_treks')
     bookings = db.relationship('Booking', back_populates='trek', cascade="all, delete-orphan")
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'location': self.location,
+            'difficulty': self.difficulty,
+            'duration': self.duration,
+            'available_slots': self.available_slots,
+            'status': self.status,
+            'start_date': self.start_date.isoformat() if self.start_date else None,
+            'end_date': self.end_date.isoformat() if self.end_date else None,
+            'assigned_staff_id': self.assigned_staff_id,
+            'staff': {'id': self.staff.id, 'name': self.staff.name} if self.staff else None
+        }
+
 class Booking(db.Model):
     __tablename__ = 'bookings'
     
@@ -59,3 +93,15 @@ class Booking(db.Model):
     # Relationships
     user = db.relationship('User', back_populates='bookings')
     trek = db.relationship('Trek', back_populates='bookings')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'trek_id': self.trek_id,
+            'booking_date': self.booking_date.isoformat() if self.booking_date else None,
+            'status': self.status,
+            'payment_status': self.payment_status,
+            'user': self.user.to_dict() if self.user else None,
+            'trek': {'id': self.trek.id, 'name': self.trek.name} if self.trek else None
+        }
