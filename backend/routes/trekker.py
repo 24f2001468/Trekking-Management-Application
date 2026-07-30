@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.database import db
 from models.models import User, Trek, Booking
+from cache import cache
 
 trekker_bp = Blueprint('trekker_bp', __name__)
 
@@ -18,6 +19,7 @@ def trekker_required(fn):
 
 @trekker_bp.route('/treks/open', methods=['GET'])
 @trekker_required
+@cache.cached(timeout=300, key_prefix='open_treks')
 def get_open_treks():
     # Only return treks that are 'Open'
     treks = Trek.query.filter_by(status='Open').all()
@@ -68,6 +70,9 @@ def book_trek():
     db.session.add(new_booking)
     db.session.commit()
     
+    # Invalidate open_treks cache since available slots changed
+    cache.delete('open_treks')
+    
     return jsonify(new_booking.to_dict()), 201
 
 @trekker_bp.route('/bookings', methods=['GET'])
@@ -98,6 +103,10 @@ def cancel_booking(booking_id):
         booking.trek.available_slots += 1
         
     db.session.commit()
+    
+    # Invalidate open_treks cache since available slots changed
+    cache.delete('open_treks')
+    
     return jsonify(booking.to_dict()), 200
 
 @trekker_bp.route('/export', methods=['POST'])

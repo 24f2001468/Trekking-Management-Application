@@ -23,6 +23,14 @@ def create_app():
     db.init_app(app)
     jwt = JWTManager(app)
     
+    # Initialize Cache
+    from cache import cache
+    app.config['CACHE_TYPE'] = 'RedisCache'
+    app.config['CACHE_REDIS_URL'] = 'redis://localhost:6379/0'
+    app.config['CACHE_DEFAULT_TIMEOUT'] = 300
+    cache.init_app(app)
+
+    
     # Initialize Celery
     from celery_app import celery_instance
     celery_instance.conf.update(app.config)

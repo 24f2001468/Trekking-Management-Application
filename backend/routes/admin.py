@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.database import db
 from models.models import User, StaffProfile, Trek, Booking
+from cache import cache
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 
@@ -115,6 +116,7 @@ def create_trek():
         )
         db.session.add(new_trek)
         db.session.commit()
+        cache.delete('open_treks')
         return jsonify(new_trek.to_dict()), 201
     except Exception as e:
         return jsonify({"msg": str(e)}), 400
@@ -134,6 +136,7 @@ def update_trek(trek_id):
         if 'end_date' in data: trek.end_date = datetime.strptime(data['end_date'], '%Y-%m-%d').date()
         if 'status' in data: trek.status = data['status']
         db.session.commit()
+        cache.delete('open_treks')
         return jsonify(trek.to_dict()), 200
     except Exception as e:
         return jsonify({"msg": str(e)}), 400
@@ -144,6 +147,7 @@ def delete_trek(trek_id):
     trek = Trek.query.get_or_404(trek_id)
     db.session.delete(trek)
     db.session.commit()
+    cache.delete('open_treks')
     return jsonify({"msg": "Trek deleted"}), 200
 
 @admin_bp.route('/treks/<int:trek_id>/assign', methods=['PUT'])
@@ -158,6 +162,7 @@ def assign_staff(trek_id):
     else:
         trek.assigned_staff_id = None
     db.session.commit()
+    cache.delete('open_treks')
     return jsonify(trek.to_dict()), 200
 
 # Bookings Management

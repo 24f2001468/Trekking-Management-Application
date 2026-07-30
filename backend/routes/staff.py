@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.database import db
 from models.models import User, StaffProfile, Trek, Booking
+from cache import cache
 
 staff_bp = Blueprint('staff_bp', __name__)
 
@@ -69,6 +70,7 @@ def update_trek(trek_id):
         trek.available_slots = int(data['available_slots'])
         
     db.session.commit()
+    cache.delete('open_treks')
     return jsonify(trek.to_dict()), 200
 
 @staff_bp.route('/treks/<int:trek_id>/participants', methods=['GET'])
