@@ -107,6 +107,7 @@
               <label>Status</label>
               <select v-model="form.status" class="premium-input" required>
                 <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
                 <option value="Open">Open</option>
                 <option value="Closed">Closed</option>
                 <option value="Completed">Completed</option>
