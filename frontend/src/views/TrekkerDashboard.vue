@@ -1,12 +1,20 @@
 <template>
-  <div>
-    <h1>Trekker Dashboard</h1>
-    <p>Welcome, Trekker! Discover and book your next adventure here.</p>
+  <div class="admin-layout">
+    <TrekkerSidebar />
+    <main class="admin-content">
+      <router-view />
+    </main>
   </div>
 </template>
 
 <script>
+import TrekkerSidebar from '../components/trekker/TrekkerSidebar.vue'
+import '../assets/dashboard-layout.css'
+
 export default {
-  name: 'TrekkerDashboard'
+  name: 'TrekkerDashboard',
+  components: {
+    TrekkerSidebar
+  }
 }
 </script>

@@ -16,6 +16,10 @@ import StaffHome from '../components/staff/StaffHome.vue'
 import StaffTreks from '../components/staff/StaffTreks.vue'
 import StaffTrekDetails from '../components/staff/StaffTrekDetails.vue'
 
+import TrekkerHome from '../components/trekker/TrekkerHome.vue'
+import TrekkerBrowse from '../components/trekker/TrekkerBrowse.vue'
+import TrekkerBookings from '../components/trekker/TrekkerBookings.vue'
+
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', name: 'Login', component: LoginView },
@@ -44,9 +48,13 @@ const routes = [
   },
   { 
     path: '/trekker', 
-    name: 'TrekkerDashboard', 
     component: TrekkerDashboard,
-    meta: { requiresAuth: true, role: 'Trekker' }
+    meta: { requiresAuth: true, role: 'Trekker' },
+    children: [
+      { path: '', name: 'TrekkerHome', component: TrekkerHome },
+      { path: 'browse', name: 'TrekkerBrowse', component: TrekkerBrowse },
+      { path: 'bookings', name: 'TrekkerBookings', component: TrekkerBookings }
+    ]
   }
 ]
 
