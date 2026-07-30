@@ -9,7 +9,7 @@
 
 <script>
 import AdminSidebar from '../components/admin/AdminSidebar.vue'
-import '../assets/admin.css' // Import premium styles for admin section
+import '../assets/dashboard-layout.css' // Import premium styles for dashboard layout
 
 export default {
   name: 'AdminDashboard',

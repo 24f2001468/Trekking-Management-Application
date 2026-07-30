@@ -12,6 +12,10 @@ import AdminUsers from '../components/admin/AdminUsers.vue'
 import AdminStaff from '../components/admin/AdminStaff.vue'
 import AdminBookings from '../components/admin/AdminBookings.vue'
 
+import StaffHome from '../components/staff/StaffHome.vue'
+import StaffTreks from '../components/staff/StaffTreks.vue'
+import StaffTrekDetails from '../components/staff/StaffTrekDetails.vue'
+
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', name: 'Login', component: LoginView },
@@ -30,9 +34,13 @@ const routes = [
   },
   { 
     path: '/staff', 
-    name: 'StaffDashboard', 
     component: StaffDashboard,
-    meta: { requiresAuth: true, role: 'Trek Staff' }
+    meta: { requiresAuth: true, role: 'Trek Staff' },
+    children: [
+      { path: '', name: 'StaffHome', component: StaffHome },
+      { path: 'treks', name: 'StaffTreks', component: StaffTreks },
+      { path: 'treks/:id', name: 'StaffTrekDetails', component: StaffTrekDetails }
+    ]
   },
   { 
     path: '/trekker', 

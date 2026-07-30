@@ -1,12 +1,20 @@
 <template>
-  <div>
-    <h1>Staff Dashboard</h1>
-    <p>Welcome, Trek Staff! Here you can manage your assigned treks.</p>
+  <div class="admin-layout">
+    <StaffSidebar />
+    <main class="admin-content">
+      <router-view />
+    </main>
   </div>
 </template>
 
 <script>
+import StaffSidebar from '../components/staff/StaffSidebar.vue'
+import '../assets/dashboard-layout.css'
+
 export default {
-  name: 'StaffDashboard'
+  name: 'StaffDashboard',
+  components: {
+    StaffSidebar
+  }
 }
 </script>
