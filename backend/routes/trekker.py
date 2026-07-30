@@ -99,3 +99,30 @@ def cancel_booking(booking_id):
         
     db.session.commit()
     return jsonify(booking.to_dict()), 200
+
+@trekker_bp.route('/export', methods=['POST'])
+@trekker_required
+def export_history():
+    from tasks import export_user_history
+    identity = get_jwt_identity()
+    user_id = identity.get('id')
+    
+    # Trigger Celery Task
+    task = export_user_history.delay(user_id)
+    return jsonify({"task_id": task.id}), 202
+
+@trekker_bp.route('/export/<task_id>', methods=['GET'])
+@trekker_required
+def export_status(task_id):
+    from celery_app import celery_instance
+    task_result = celery_instance.AsyncResult(task_id)
+    
+    if task_result.state == 'PENDING':
+        return jsonify({"state": task_result.state, "msg": "Task is pending..."}), 200
+    elif task_result.state == 'SUCCESS':
+        return jsonify({
+            "state": task_result.state,
+            "csv_data": task_result.result
+        }), 200
+    else:
+        return jsonify({"state": task_result.state, "msg": str(task_result.info)}), 200

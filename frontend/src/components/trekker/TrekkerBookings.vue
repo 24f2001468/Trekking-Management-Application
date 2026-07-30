@@ -1,8 +1,13 @@
 <template>
   <div>
-    <div class="page-header">
-      <h1>My Bookings</h1>
-      <p style="color: var(--text-secondary); margin-top: 0.5rem;">Manage your trekking history and active bookings.</p>
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1>My Bookings</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.5rem;">Manage your trekking history and active bookings.</p>
+      </div>
+      <button @click="triggerExport" class="btn-premium btn-primary" :disabled="exporting">
+        {{ exporting ? 'Exporting...' : '📄 Export History (CSV)' }}
+      </button>
     </div>
 
     <div v-if="loading" class="loading">Loading bookings...</div>
@@ -83,6 +88,62 @@ export default {
     const loading = ref(true)
     const error = ref('')
     const cancelling = ref(null)
+    const exporting = ref(false)
+
+    const triggerExport = async () => {
+      exporting.value = true
+      try {
+        const token = localStorage.getItem('tma_token')
+        const response = await fetch('http://localhost:5000/api/trekker/export', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        const data = await response.json()
+        if (!response.ok) throw new Error(data.msg || 'Failed to start export')
+        
+        pollExportStatus(data.task_id)
+      } catch (err) {
+        alert(err.message)
+        exporting.value = false
+      }
+    }
+
+    const pollExportStatus = async (taskId) => {
+      const token = localStorage.getItem('tma_token')
+      const checkStatus = async () => {
+        try {
+          const response = await fetch(`http://localhost:5000/api/trekker/export/${taskId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+          const data = await response.json()
+          
+          if (data.state === 'SUCCESS') {
+            downloadCSV(data.csv_data)
+            exporting.value = false
+          } else if (data.state === 'FAILURE' || data.state === 'REVOKED') {
+            alert('Export failed: ' + data.msg)
+            exporting.value = false
+          } else {
+            // Still pending/processing, check again in 1 second
+            setTimeout(checkStatus, 1000)
+          }
+        } catch (err) {
+          alert('Error checking export status')
+          exporting.value = false
+        }
+      }
+      setTimeout(checkStatus, 1000)
+    }
+
+    const downloadCSV = (csvData) => {
+      const blob = new Blob([csvData], { type: 'text/csv' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.setAttribute('href', url)
+      a.setAttribute('download', 'trekking_history.csv')
+      a.click()
+      window.URL.revokeObjectURL(url)
+    }
 
     const fetchBookings = async () => {
       try {
@@ -132,7 +193,7 @@ export default {
 
     onMounted(fetchBookings)
 
-    return { bookings, loading, error, cancelling, cancelBooking, formatDate }
+    return { bookings, loading, error, cancelling, cancelBooking, formatDate, triggerExport, exporting }
   }
 }
 </script>

@@ -23,6 +23,16 @@ def create_app():
     db.init_app(app)
     jwt = JWTManager(app)
     
+    # Initialize Celery
+    from celery_app import celery_instance
+    celery_instance.conf.update(app.config)
+    class ContextTask(celery_instance.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+    celery_instance.Task = ContextTask
+
+    
     # Register blueprints
     from routes.auth import auth_bp
     from routes.admin import admin_bp
