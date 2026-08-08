@@ -97,12 +97,14 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useToast } from '../../composables/useToast.js'
 
 export default {
   name: 'StaffTrekDetails',
   setup() {
     const route = useRoute()
     const trekId = route.params.id
+    const { success, error: toastError } = useToast()
     
     const trek = ref(null)
     const participants = ref([])
@@ -157,9 +159,9 @@ export default {
         if (!response.ok) throw new Error('Failed to update trek')
         const data = await response.json()
         trek.value = data
-        alert("Trek updated successfully!")
+        success('Trek settings updated successfully!')
       } catch (err) {
-        alert(err.message)
+        toastError(err.message)
       } finally {
         submittingTrek.value = false
       }
@@ -182,20 +184,21 @@ export default {
         }
         const data = await response.json()
         participant.status = data.status
+        success(`Participant status updated to "${data.status}".`)
       } catch (err) {
-        alert(err.message)
+        toastError(err.message)
       }
     }
 
     const formatDate = (dateStr) => {
-      if(!dateStr) return '-'
+      if (!dateStr) return '-'
       const d = new Date(dateStr)
       return d.toLocaleDateString()
     }
 
     onMounted(async () => {
       await fetchTrek()
-      if(trek.value) await fetchParticipants()
+      if (trek.value) await fetchParticipants()
       loading.value = false
     })
 

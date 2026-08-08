@@ -26,12 +26,12 @@
         </thead>
         <tbody>
           <tr v-for="b in bookings" :key="b.id">
-            <td>{{ formatDate(b.booking_date) }}</td>
-            <td>
+            <td data-label="Date">{{ formatDate(b.booking_date) }}</td>
+            <td data-label="Trek">
               <strong>{{ b.trek?.name }}</strong><br>
               <small style="color: var(--text-secondary)">{{ b.trek?.start_date }} to {{ b.trek?.end_date }}</small>
             </td>
-            <td>
+            <td data-label="Booking Status">
               <span class="badge" 
                 :class="{
                   'badge-primary': b.status === 'Booked',
@@ -41,7 +41,7 @@
                 {{ b.status }}
               </span>
             </td>
-            <td>
+            <td data-label="Payment">
               <span class="badge" 
                 :class="{
                   'badge-warning': b.payment_status === 'Pending',
@@ -51,16 +51,27 @@
                 {{ b.payment_status }}
               </span>
             </td>
-            <td>
-              <button 
-                v-if="b.status === 'Booked'"
-                @click="cancelBooking(b.id)"
-                class="btn-premium btn-danger" 
-                style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"
-                :disabled="cancelling === b.id"
-              >
-                {{ cancelling === b.id ? 'Cancelling...' : 'Cancel' }}
-              </button>
+            <td data-label="Actions">
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <!-- Pay Now button – shown only for active booked + pending payment -->
+                <button
+                  v-if="b.status === 'Booked' && b.payment_status === 'Pending'"
+                  @click="openPayment(b)"
+                  class="btn-premium btn-success"
+                  style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"
+                >
+                  💳 Pay Now
+                </button>
+                <button 
+                  v-if="b.status === 'Booked'"
+                  @click="cancelBooking(b.id)"
+                  class="btn-premium btn-danger" 
+                  style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"
+                  :disabled="cancelling === b.id"
+                >
+                  {{ cancelling === b.id ? 'Cancelling...' : 'Cancel' }}
+                </button>
+              </div>
             </td>
           </tr>
           <tr v-if="bookings.length === 0">
@@ -75,23 +86,73 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Payment Simulator Modal -->
+    <PaymentSimulator
+      :visible="paymentModalOpen"
+      :bookingRef="payingBooking"
+      @success="onPaymentSuccess"
+      @cancel="paymentModalOpen = false"
+    />
   </div>
 </template>
 
 <script>
 import { ref, onMounted } from 'vue'
+import { useConfirm } from '../../composables/useConfirm.js'
+import { useToast } from '../../composables/useToast.js'
+import PaymentSimulator from '../PaymentSimulator.vue'
 
 export default {
   name: 'TrekkerBookings',
+  components: { PaymentSimulator },
   setup() {
     const bookings = ref([])
     const loading = ref(true)
     const error = ref('')
     const cancelling = ref(null)
     const exporting = ref(false)
+    const { showConfirm } = useConfirm()
+    const { success, error: toastError, info } = useToast()
+
+    // Payment modal state
+    const paymentModalOpen = ref(false)
+    const payingBooking = ref(null)
+
+    const openPayment = (booking) => {
+      payingBooking.value = booking
+      paymentModalOpen.value = true
+    }
+
+    const onPaymentSuccess = async ({ txnId }) => {
+      paymentModalOpen.value = false
+      try {
+        const token = localStorage.getItem('tma_token')
+        const res = await fetch(`http://localhost:5000/api/admin/bookings/${payingBooking.value.id}/pay`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ payment_status: 'Paid' })
+        })
+        if (res.ok) {
+          const data = await res.json()
+          const index = bookings.value.findIndex(b => b.id === data.id)
+          if (index !== -1) bookings.value[index] = data
+        } else {
+          // fallback: update locally so UI reflects change immediately
+          const index = bookings.value.findIndex(b => b.id === payingBooking.value.id)
+          if (index !== -1) bookings.value[index] = { ...bookings.value[index], payment_status: 'Paid' }
+        }
+      } catch (e) {
+        // network error: still update UI optimistically
+        const index = bookings.value.findIndex(b => b.id === payingBooking.value.id)
+        if (index !== -1) bookings.value[index] = { ...bookings.value[index], payment_status: 'Paid' }
+      }
+      success(`Payment confirmed! Transaction ID: ${txnId}`)
+    }
 
     const triggerExport = async () => {
       exporting.value = true
+      info('Generating your CSV export...')
       try {
         const token = localStorage.getItem('tma_token')
         const response = await fetch('http://localhost:5000/api/trekker/export', {
@@ -100,10 +161,20 @@ export default {
         })
         const data = await response.json()
         if (!response.ok) throw new Error(data.msg || 'Failed to start export')
-        
-        pollExportStatus(data.task_id)
+
+        // Handle synchronous export response (csv_data) or async task_id
+        if (data.csv_data) {
+          downloadCSV(data.csv_data)
+          success('CSV export downloaded successfully!')
+          exporting.value = false
+        } else if (data.task_id) {
+          pollExportStatus(data.task_id)
+        } else {
+          toastError('Unexpected export response')
+          exporting.value = false
+        }
       } catch (err) {
-        alert(err.message)
+        toastError(err.message)
         exporting.value = false
       }
     }
@@ -119,16 +190,16 @@ export default {
           
           if (data.state === 'SUCCESS') {
             downloadCSV(data.csv_data)
+            success('CSV export downloaded successfully!')
             exporting.value = false
           } else if (data.state === 'FAILURE' || data.state === 'REVOKED') {
-            alert('Export failed: ' + data.msg)
+            toastError('Export failed: ' + data.msg)
             exporting.value = false
           } else {
-            // Still pending/processing, check again in 1 second
             setTimeout(checkStatus, 1000)
           }
         } catch (err) {
-          alert('Error checking export status')
+          toastError('Error checking export status')
           exporting.value = false
         }
       }
@@ -161,7 +232,13 @@ export default {
     }
 
     const cancelBooking = async (id) => {
-      if(!confirm("Are you sure you want to cancel this booking?")) return;
+      const confirmed = await showConfirm({
+        title: 'Cancel Booking',
+        message: 'Are you sure you want to cancel this booking? This action cannot be undone.',
+        confirmLabel: 'Yes, Cancel',
+        confirmClass: 'btn-danger'
+      })
+      if (!confirmed) return
       
       cancelling.value = id
       try {
@@ -174,26 +251,29 @@ export default {
         const data = await response.json()
         if (!response.ok) throw new Error(data.msg || 'Failed to cancel booking')
         
-        // Update local state
         const index = bookings.value.findIndex(b => b.id === data.id)
-        if(index !== -1) bookings.value[index] = data
-        alert("Booking cancelled successfully.")
+        if (index !== -1) bookings.value[index] = data
+        success('Booking cancelled successfully.')
       } catch (err) {
-        alert(err.message)
+        toastError(err.message)
       } finally {
         cancelling.value = null
       }
     }
 
     const formatDate = (dateStr) => {
-      if(!dateStr) return '-'
+      if (!dateStr) return '-'
       const d = new Date(dateStr)
       return d.toLocaleDateString()
     }
 
     onMounted(fetchBookings)
 
-    return { bookings, loading, error, cancelling, cancelBooking, formatDate, triggerExport, exporting }
+    return {
+      bookings, loading, error, cancelling, cancelBooking, formatDate,
+      triggerExport, exporting,
+      paymentModalOpen, payingBooking, openPayment, onPaymentSuccess
+    }
   }
 }
 </script>

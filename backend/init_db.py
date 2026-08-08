@@ -8,6 +8,17 @@ def init_database():
     with app.app_context():
         # Create tables
         db.create_all()
+        # Ensure price column exists (SQLite tolerant)
+        try:
+            db.session.execute('ALTER TABLE treks ADD COLUMN price FLOAT')
+        except Exception:
+            pass
+        # Backfill dynamic price for existing treks
+        from models.models import Trek
+        for trek in Trek.query.all():
+            if trek.price is None:
+                trek.price = trek.calculate_price()
+        db.session.commit()
         print("Database tables created.")
         
         # Check if Admin already exists

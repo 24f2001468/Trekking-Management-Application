@@ -52,11 +52,9 @@ def generate_monthly_report():
 @celery_instance.task
 def export_user_history(user_id):
     """
-    User-triggered Job: Generates a CSV of their trekking history.
+    Generates a CSV of the user's trekking history.
+    Called synchronously from trekker route (no Celery worker needed).
     """
-    # Simulate a long-running process
-    time.sleep(3) 
-    
     user = User.query.get(user_id)
     if not user:
         return "User not found"
@@ -66,7 +64,7 @@ def export_user_history(user_id):
     # Create CSV in memory
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(['Booking Date', 'Trek Name', 'Location', 'Dates', 'Booking Status', 'Payment Status'])
+    writer.writerow(['User ID', 'Username', 'Trek Name', 'Location', 'Start Date', 'End Date', 'Booking Date', 'Booking Status', 'Payment Status'])
     
     for b in bookings:
         trek = b.trek
@@ -74,10 +72,13 @@ def export_user_history(user_id):
         end_date = trek.end_date.strftime('%Y-%m-%d') if trek and trek.end_date else 'N/A'
         
         writer.writerow([
-            b.booking_date.strftime('%Y-%m-%d %H:%M:%S'),
+            user.id,
+            user.username,
             trek.name if trek else 'Unknown',
             trek.location if trek else 'Unknown',
-            f"{start_date} to {end_date}",
+            start_date,
+            end_date,
+            b.booking_date.strftime('%Y-%m-%d %H:%M:%S'),
             b.status,
             b.payment_status
         ])

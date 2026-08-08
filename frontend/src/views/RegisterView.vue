@@ -1,77 +1,68 @@
 <template>
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card mt-5">
-        <div class="card-header">
-          <h3 class="mb-0">Trekker Registration</h3>
-        </div>
-        <div class="card-body">
-          <div v-if="error" class="alert alert-danger">{{ error }}</div>
-          <div v-if="success" class="alert alert-success">{{ success }}</div>
-          <form @submit.prevent="handleRegister">
-            <div class="mb-3">
-              <label class="form-label">Username</label>
-              <input type="text" class="form-control" v-model="username" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Email address</label>
-              <input type="email" class="form-control" v-model="email" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Password</label>
-              <input type="password" class="form-control" v-model="password" required>
-            </div>
-            <button type="submit" class="btn btn-success w-100">Register</button>
-          </form>
-          <div class="mt-3 text-center">
-            <router-link to="/login">Already have an account? Login here</router-link>
-          </div>
-        </div>
+  <div class="auth-page">
+    <div class="auth-card glass-panel">
+      <div class="auth-logo">
+        <span class="icon-wrap">🏔️</span>
+        <span class="logo-name">TMA</span>
       </div>
+      <h2 class="auth-title">Create Account</h2>
+      <p class="auth-subtitle">Join as a Trekker and start your journey</p>
+
+      <div v-if="error" class="auth-error">{{ error }}</div>
+
+      <form @submit.prevent="handleRegister" class="auth-form">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" class="premium-input" v-model="username"
+            placeholder="Choose a username" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" class="premium-input" v-model="email"
+            placeholder="your@email.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" class="premium-input" v-model="password"
+            placeholder="Create a strong password" required autocomplete="new-password" minlength="6">
+        </div>
+        <button type="submit" class="btn-premium btn-primary auth-btn" :disabled="loading">
+          {{ loading ? 'Creating Account…' : 'Create Account' }}
+        </button>
+      </form>
+
+      <p class="auth-footer">
+        Already have an account? <router-link to="/login">Sign in here</router-link>
+      </p>
     </div>
   </div>
 </template>
 
 <script>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useToast } from '../composables/useToast.js'
 export default {
-  data() {
-    return {
-      username: '',
-      email: '',
-      password: '',
-      error: '',
-      success: ''
-    }
-  },
-  methods: {
-    async handleRegister() {
-      this.error = '';
-      this.success = '';
+  name: 'RegisterView',
+  setup() {
+    const router = useRouter()
+    const { success } = useToast()
+    const username = ref(''), email = ref(''), password = ref(''), error = ref(''), loading = ref(false)
+    const handleRegister = async () => {
+      error.value = ''; loading.value = true
       try {
-        const response = await fetch('/api/auth/register', {
+        const res = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            username: this.username, 
-            email: this.email,
-            password: this.password 
-          })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-          this.success = 'Registration successful! You can now login.';
-          this.username = '';
-          this.email = '';
-          this.password = '';
-        } else {
-          this.error = data.msg || 'Registration failed';
-        }
-      } catch (err) {
-        this.error = 'Network error occurred';
-      }
+          body: JSON.stringify({ username: username.value, email: email.value, password: password.value })
+        })
+        const data = await res.json()
+        if (res.ok) { success('Account created! Please sign in.'); router.push('/login') }
+        else { error.value = data.msg || 'Registration failed' }
+      } catch { error.value = 'Network error. Please try again.' }
+      finally { loading.value = false }
     }
+    return { username, email, password, error, loading, handleRegister }
   }
 }
 </script>

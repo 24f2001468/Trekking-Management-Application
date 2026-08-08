@@ -1,0 +1,693 @@
+openapi: 3.0.3
+info:
+  title: Trekking Management Application API
+  description: REST API for the TMA platform supporting Admin, Trek Staff, and Trekker roles.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string, example: admin }
+        password: { type: string, example: admin123 }
+
+    RegisterRequest:
+      type: object
+      required: [username, email, password]
+      properties:
+        username: { type: string, example: john_doe }
+        email:    { type: string, format: email, example: john@example.com }
+        password: { type: string, example: secret123 }
+
+    User:
+      type: object
+      properties:
+        id:       { type: integer }
+        username: { type: string }
+        email:    { type: string }
+        role:     { type: string, enum: [Admin, Trek Staff, Trekker] }
+        active:   { type: boolean }
+
+    StaffProfile:
+      type: object
+      properties:
+        id:              { type: integer }
+        user_id:         { type: integer }
+        name:            { type: string }
+        contact_details: { type: string }
+        status:          { type: string, enum: [Active, Inactive] }
+        user:            { $ref: '#/components/schemas/User' }
+
+    Trek:
+      type: object
+      properties:
+        id:               { type: integer }
+        name:             { type: string }
+        location:         { type: string }
+        difficulty:       { type: string, enum: [Easy, Moderate, Hard] }
+        duration:         { type: integer, description: Duration in days }
+        available_slots:  { type: integer }
+        status:           { type: string, enum: [Pending, Approved, Open, Closed, Completed] }
+        start_date:       { type: string, format: date }
+        end_date:         { type: string, format: date }
+        assigned_staff_id:{ type: integer, nullable: true }
+        staff:            { type: object, nullable: true }
+
+    Booking:
+      type: object
+      properties:
+        id:             { type: integer }
+        user_id:        { type: integer }
+        trek_id:        { type: integer }
+        booking_date:   { type: string, format: date-time }
+        status:         { type: string, enum: [Booked, Cancelled, Completed] }
+        payment_status: { type: string, enum: [Pending, Paid, Failed] }
+        user:           { $ref: '#/components/schemas/User' }
+        trek:           { type: object }
+
+    DashboardStats:
+      type: object
+      properties:
+        total_treks:    { type: integer }
+        total_users:    { type: integer }
+        total_staff:    { type: integer }
+        total_bookings: { type: integer }
+
+    Error:
+      type: object
+      properties:
+        msg: { type: string }
+
+security:
+  - BearerAuth: []
+
+paths:
+
+  # ── AUTH ──────────────────────────────────────────────────
+
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new Trekker account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg: { type: string }
+        '409':
+          description: Username or email already exists
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate and receive a JWT token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token: { type: string }
+                  user:         { $ref: '#/components/schemas/User' }
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  # ── ADMIN ─────────────────────────────────────────────────
+
+  /api/admin/dashboard_stats:
+    get:
+      tags: [Admin]
+      summary: Fetch platform-wide summary counts
+      responses:
+        '200':
+          description: Stats returned
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DashboardStats' }
+
+  /api/admin/treks:
+    get:
+      tags: [Admin]
+      summary: Fetch all treks
+      responses:
+        '200':
+          description: List of treks
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Trek' }
+    post:
+      tags: [Admin]
+      summary: Create a new trek
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Trek' }
+      responses:
+        '201':
+          description: Trek created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Trek' }
+
+  /api/admin/treks/{trek_id}:
+    parameters:
+      - name: trek_id
+        in: path
+        required: true
+        schema: { type: integer }
+    put:
+      tags: [Admin]
+      summary: Update a trek
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Trek' }
+      responses:
+        '200':
+          description: Trek updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Trek' }
+    delete:
+      tags: [Admin]
+      summary: Delete a trek
+      responses:
+        '200':
+          description: Trek deleted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /api/admin/treks/{trek_id}/assign:
+    put:
+      tags: [Admin]
+      summary: Assign a staff member to a trek
+      parameters:
+        - name: trek_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                staff_id: { type: integer, nullable: true }
+      responses:
+        '200':
+          description: Staff assigned
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Trek' }
+
+  /api/admin/users:
+    get:
+      tags: [Admin]
+      summary: Fetch all Trekker accounts
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/User' }
+
+  /api/admin/users/{user_id}/status:
+    put:
+      tags: [Admin]
+      summary: Toggle user active/inactive status
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+
+  /api/admin/staff:
+    get:
+      tags: [Admin]
+      summary: Fetch all staff profiles
+      responses:
+        '200':
+          description: List of staff
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/StaffProfile' }
+    post:
+      tags: [Admin]
+      summary: Create a new Trek Staff account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, username, password]
+              properties:
+                name:            { type: string }
+                username:        { type: string }
+                email:           { type: string }
+                password:        { type: string }
+                contact_details: { type: string }
+      responses:
+        '201':
+          description: Staff created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StaffProfile' }
+
+  /api/admin/staff/{staff_id}/status:
+    put:
+      tags: [Admin]
+      summary: Toggle staff active/inactive status
+      parameters:
+        - name: staff_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Status toggled
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StaffProfile' }
+
+  /api/admin/bookings:
+    get:
+      tags: [Admin]
+      summary: Fetch all bookings
+      responses:
+        '200':
+          description: List of bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Booking' }
+
+  /api/admin/bookings/{booking_id}/status:
+    put:
+      tags: [Admin]
+      summary: Update booking status
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string, enum: [Booked, Cancelled, Completed] }
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Booking' }
+
+  /api/admin/bookings/{booking_id}/payment:
+    put:
+      tags: [Admin]
+      summary: Update payment status
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payment_status: { type: string, enum: [Pending, Paid, Failed] }
+      responses:
+        '200':
+          description: Payment status updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Booking' }
+
+  /api/admin/stats/revenue:
+    get:
+      tags: [Admin]
+      summary: Fetch payment breakdown statistics
+      responses:
+        '200':
+          description: Revenue stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_bookings: { type: integer }
+                  paid:           { type: integer }
+                  pending:        { type: integer }
+                  failed:         { type: integer }
+
+  # ── STAFF ─────────────────────────────────────────────────
+
+  /api/staff/treks:
+    get:
+      tags: [Staff]
+      summary: Fetch treks assigned to the logged-in staff member
+      responses:
+        '200':
+          description: Assigned treks
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Trek' }
+
+  /api/staff/treks/{trek_id}:
+    parameters:
+      - name: trek_id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Staff]
+      summary: Fetch details of an assigned trek
+      responses:
+        '200':
+          description: Trek details
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Trek' }
+    put:
+      tags: [Staff]
+      summary: Update trek status or available slots
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:          { type: string }
+                available_slots: { type: integer }
+      responses:
+        '200':
+          description: Trek updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Trek' }
+
+  /api/staff/treks/{trek_id}/participants:
+    get:
+      tags: [Staff]
+      summary: Fetch all participants for an assigned trek
+      parameters:
+        - name: trek_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Participant bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Booking' }
+
+  /api/staff/bookings/{booking_id}/status:
+    put:
+      tags: [Staff]
+      summary: Update a participant booking status
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string, enum: [Booked, Completed, Cancelled] }
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Booking' }
+
+  # ── TREKKER ───────────────────────────────────────────────
+
+  /api/trekker/treks/open:
+    get:
+      tags: [Trekker]
+      summary: Fetch all treks open for booking
+      responses:
+        '200':
+          description: Open treks
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Trek' }
+
+  /api/trekker/bookings:
+    get:
+      tags: [Trekker]
+      summary: Fetch the logged-in trekker's bookings
+      responses:
+        '200':
+          description: My bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Booking' }
+    post:
+      tags: [Trekker]
+      summary: Book a trek
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [trek_id]
+              properties:
+                trek_id: { type: integer }
+      responses:
+        '201':
+          description: Booking created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Booking' }
+        '400':
+          description: Trek not open, slots full, or duplicate booking
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /api/trekker/bookings/{booking_id}/cancel:
+    put:
+      tags: [Trekker]
+      summary: Cancel an existing booking
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Booking cancelled
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Booking' }
+
+  /api/trekker/export:
+    post:
+      tags: [Trekker]
+      summary: Trigger async CSV export of trekking history
+      responses:
+        '202':
+          description: Export task queued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id: { type: string }
+
+  /api/trekker/export/{task_id}:
+    get:
+      tags: [Trekker]
+      summary: Poll status of a running CSV export task
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Task status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:    { type: string, enum: [PENDING, SUCCESS, FAILURE] }
+                  csv_data: { type: string, description: CSV string on SUCCESS }
+                  msg:      { type: string }
+
+  # ── TREK SEARCH ───────────────────────────────────────────
+
+  /api/treks/search:
+    get:
+      tags: [Search]
+      summary: Search and filter treks
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+          description: Text search on name or location
+        - name: status
+          in: query
+          schema: { type: string }
+        - name: difficulty
+          in: query
+          schema: { type: string }
+        - name: from_date
+          in: query
+          schema: { type: string, format: date }
+        - name: to_date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Filtered trek list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Trek' }
+
+  # ── ANALYTICS ─────────────────────────────────────────────
+
+  /api/analytics/public/stats:
+    get:
+      tags: [Analytics]
+      summary: Public aggregate stats for the landing page (no auth required)
+      security: []
+      responses:
+        '200':
+          description: Platform statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_treks:          { type: integer }
+                  open_treks:           { type: integer }
+                  completed_treks:      { type: integer }
+                  total_trekkers:       { type: integer }
+                  total_bookings:       { type: integer }
+                  difficulty_breakdown: { type: object }
+                  top_treks:            { type: array, items: { type: object } }
+                  status_breakdown:     { type: object }
+
+  /api/analytics/admin/overview:
+    get:
+      tags: [Analytics]
+      summary: Full analytics overview for admin dashboard
+      responses:
+        '200':
+          description: Analytics data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  monthly_bookings:            { type: array, items: { type: object } }
+                  top_treks:                   { type: array, items: { type: object } }
+                  difficulty_distribution:     { type: object }
+                  booking_status_distribution: { type: object }
+                  payment_distribution:        { type: object }
+                  monthly_participation:       { type: array, items: { type: object } }
+                  trek_status_distribution:    { type: object }
+
+  /api/analytics/admin/trek/{trek_id}:
+    get:
+      tags: [Analytics]
+      summary: Per-trek analytics with fill rate
+      parameters:
+        - name: trek_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Trek analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trek:           { $ref: '#/components/schemas/Trek' }
+                  total_bookings: { type: integer }
+                  booking_status: { type: object }
+                  payment_status: { type: object }
+                  fill_rate:      { type: number, format: float }

@@ -1,20 +1,25 @@
 <template>
   <div class="admin-layout">
-    <StaffSidebar />
+    <div class="sidebar-backdrop" :class="{ 'is-visible': sidebarOpen }" @click="sidebarOpen = false"></div>
+    <StaffSidebar :class="{ 'is-open': sidebarOpen }" />
     <main class="admin-content">
       <router-view />
     </main>
+    <button class="sidebar-toggle-btn" @click="sidebarOpen = !sidebarOpen" aria-label="Toggle sidebar">
+      <i :class="sidebarOpen ? 'bi bi-x-lg' : 'bi bi-layout-sidebar'"></i>
+    </button>
   </div>
 </template>
 
 <script>
+import { ref } from 'vue'
 import StaffSidebar from '../components/staff/StaffSidebar.vue'
-import '../assets/dashboard-layout.css'
-
 export default {
   name: 'StaffDashboard',
-  components: {
-    StaffSidebar
+  components: { StaffSidebar },
+  setup() {
+    const sidebarOpen = ref(false)
+    return { sidebarOpen }
   }
 }
 </script>

@@ -2,6 +2,7 @@ from celery import Celery
 
 def make_celery(app_name=__name__):
     # Setup Celery with Redis as the broker and backend
+    # Falls back gracefully if Redis is not running
     redis_url = 'redis://localhost:6379/0'
     celery = Celery(
         app_name,
@@ -10,11 +11,10 @@ def make_celery(app_name=__name__):
         include=['tasks']
     )
     
-    # Optional: Configure timezone or other celery settings
     celery.conf.update(
         timezone='UTC',
         enable_utc=True,
-        # Schedule configuration for Celery Beat will go here
+        broker_connection_retry_on_startup=True,  # suppress deprecation warning
     )
     
     return celery

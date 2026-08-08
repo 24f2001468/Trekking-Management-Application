@@ -1,66 +1,69 @@
 <template>
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card mt-5">
-        <div class="card-header">
-          <h3 class="mb-0">Login</h3>
-        </div>
-        <div class="card-body">
-          <div v-if="error" class="alert alert-danger">{{ error }}</div>
-          <form @submit.prevent="handleLogin">
-            <div class="mb-3">
-              <label class="form-label">Username</label>
-              <input type="text" class="form-control" v-model="username" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Password</label>
-              <input type="password" class="form-control" v-model="password" required>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Login</button>
-          </form>
-          <div class="mt-3 text-center">
-            <router-link to="/register">Need an account? Register here (Trekkers only)</router-link>
-          </div>
-        </div>
+  <div class="auth-page">
+    <div class="auth-card glass-panel">
+      <div class="auth-logo">
+        <span class="icon-wrap">🏔️</span>
+        <span class="logo-name">TMA</span>
       </div>
+      <h2 class="auth-title">Welcome Back</h2>
+      <p class="auth-subtitle">Sign in to continue your adventure</p>
+
+      <div v-if="error" class="auth-error">{{ error }}</div>
+
+      <form @submit.prevent="handleLogin" class="auth-form">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" class="premium-input" v-model="username"
+            placeholder="Enter your username" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" class="premium-input" v-model="password"
+            placeholder="Enter your password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-premium btn-primary auth-btn" :disabled="loading">
+          {{ loading ? 'Signing in…' : 'Sign In' }}
+        </button>
+      </form>
+
+      <p class="auth-footer">
+        New here? <router-link to="/register">Create a Trekker account</router-link>
+      </p>
     </div>
   </div>
 </template>
 
 <script>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useToast } from '../composables/useToast.js'
 export default {
-  data() {
-    return {
-      username: '',
-      password: '',
-      error: ''
-    }
-  },
-  methods: {
-    async handleLogin() {
+  name: 'LoginView',
+  setup() {
+    const router = useRouter()
+    const { success } = useToast()
+    const username = ref(''), password = ref(''), error = ref(''), loading = ref(false)
+    const handleLogin = async () => {
+      error.value = ''; loading.value = true
       try {
-        const response = await fetch('/api/auth/login', {
+        const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: this.username, password: this.password })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-          localStorage.setItem('tma_token', data.access_token);
-          localStorage.setItem('tma_user', JSON.stringify(data.user));
-          
-          if (data.user.role === 'Admin') this.$router.push('/admin');
-          else if (data.user.role === 'Trek Staff') this.$router.push('/staff');
-          else this.$router.push('/trekker');
-        } else {
-          this.error = data.msg || 'Login failed';
-        }
-      } catch (err) {
-        this.error = 'Network error occurred';
-      }
+          body: JSON.stringify({ username: username.value, password: password.value })
+        })
+        const data = await res.json()
+        if (res.ok) {
+          localStorage.setItem('tma_token', data.access_token)
+          localStorage.setItem('tma_user', JSON.stringify(data.user))
+          success(`Welcome back, ${data.user.username}!`)
+          if (data.user.role === 'Admin') router.push('/admin')
+          else if (data.user.role === 'Trek Staff') router.push('/staff')
+          else router.push('/trekker')
+        } else { error.value = data.msg || 'Login failed' }
+      } catch { error.value = 'Network error. Please try again.' }
+      finally { loading.value = false }
     }
+    return { username, password, error, loading, handleLogin }
   }
 }
 </script>

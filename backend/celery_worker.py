@@ -22,5 +22,5 @@ celery_instance.conf.beat_schedule = {
 }
 
 # Entry point for the celery worker and beat:
-# celery -A celery_worker.celery_instance worker --pool=eventlet -l info
+# celery -A celery_worker.celery_instance worker --pool=solo -l info
 # celery -A celery_worker.celery_instance beat -l info

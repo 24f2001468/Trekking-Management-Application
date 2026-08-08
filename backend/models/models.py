@@ -10,6 +10,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(20), nullable=False) # 'Admin', 'Trek Staff', 'Trekker'
     active = db.Column(db.Boolean, default=True)
+    is_blacklisted = db.Column(db.Boolean, default=False)  # permanent ban
     
     # Relationships
     staff_profile = db.relationship('StaffProfile', back_populates='user', uselist=False, cascade="all, delete-orphan")
@@ -21,7 +22,8 @@ class User(db.Model):
             'username': self.username,
             'email': self.email,
             'role': self.role,
-            'active': self.active
+            'active': self.active,
+            'is_blacklisted': self.is_blacklisted
         }
 
 class StaffProfile(db.Model):
@@ -60,10 +62,37 @@ class Trek(db.Model):
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
     assigned_staff_id = db.Column(db.Integer, db.ForeignKey('staff_profiles.id'), nullable=True)
+    # New price column (persisted)
+    price = db.Column(db.Float, nullable=True)
+    
+    # Pricing configuration (user‑selected)
+    BASE_PRICE = 80.0
+    DIFFICULTY_MULTIPLIERS = {
+        'Easy': 1.0,
+        'Moderate': 1.3,
+        'Hard': 1.6
+    }
+    # Duration tiers: (max_day, multiplier)
+    DURATION_MULTIPLIERS = [
+        (3, 1.0),   # 1‑3 days
+        (7, 1.2),   # 4‑7 days
+        (float('inf'), 1.5)  # 8+ days
+    ]
     
     # Relationships
     staff = db.relationship('StaffProfile', back_populates='assigned_treks')
     bookings = db.relationship('Booking', back_populates='trek', cascade="all, delete-orphan")
+    
+    def duration_multiplier(self):
+        for max_day, mult in self.DURATION_MULTIPLIERS:
+            if self.duration <= max_day:
+                return mult
+        return 1.0
+    
+    def calculate_price(self):
+        diff_mult = self.DIFFICULTY_MULTIPLIERS.get(self.difficulty, 1.0)
+        dur_mult = self.duration_multiplier()
+        return round(self.BASE_PRICE * diff_mult * dur_mult, 2)
 
     def to_dict(self):
         return {
@@ -77,7 +106,8 @@ class Trek(db.Model):
             'start_date': self.start_date.isoformat() if self.start_date else None,
             'end_date': self.end_date.isoformat() if self.end_date else None,
             'assigned_staff_id': self.assigned_staff_id,
-            'staff': {'id': self.staff.id, 'name': self.staff.name} if self.staff else None
+            'staff': {'id': self.staff.id, 'name': self.staff.name} if self.staff else None,
+            'price': self.price if self.price is not None else self.calculate_price()
         }
 
 class Booking(db.Model):

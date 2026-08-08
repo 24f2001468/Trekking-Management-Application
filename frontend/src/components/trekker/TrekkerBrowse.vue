@@ -34,13 +34,15 @@
     <div v-else class="treks-grid">
       <div v-for="t in filteredTreks" :key="t.id" class="trek-card glass-panel">
         <div class="card-header">
+          <img :src="getRandomTrekImage(t.id)" alt="Trek Image" style="width:80px;height:60px;object-fit:cover;border-radius:4px;margin-right:0.5rem;" />
           <h3>{{ t.name }}</h3>
           <span class="badge" 
             :class="{
               'badge-success': t.difficulty === 'Easy',
               'badge-warning': t.difficulty === 'Moderate',
               'badge-danger': t.difficulty === 'Hard'
-            }">
+            }"
+          >
             {{ t.difficulty }}
           </span>
         </div>
@@ -50,6 +52,7 @@
           <p class="detail"><i class="icon">⏱️</i> {{ t.duration }} Days</p>
           <p class="detail"><i class="icon">📅</i> {{ t.start_date }}</p>
           <p class="detail"><i class="icon">🎟️</i> {{ t.available_slots }} Slots Available</p>
+          <p class="detail"><i class="icon">💲</i> {{ t.price }} USD</p>
         </div>
         
         <div class="card-footer">
@@ -69,6 +72,9 @@
 
 <script>
 import { ref, onMounted, computed } from 'vue'
+import { getRandomTrekImage } from '../../composables/useRandomImage.js'
+import { useConfirm } from '../../composables/useConfirm.js'
+import { useToast } from '../../composables/useToast.js'
 
 export default {
   name: 'TrekkerBrowse',
@@ -77,6 +83,8 @@ export default {
     const loading = ref(true)
     const error = ref('')
     const bookingInProgress = ref(null)
+    const { showConfirm } = useConfirm()
+    const { success, error: toastError } = useToast()
 
     const filters = ref({
       search: '',
@@ -118,7 +126,13 @@ export default {
     })
 
     const bookTrek = async (trek) => {
-      if(!confirm(`Are you sure you want to book ${trek.name}?`)) return
+      const confirmed = await showConfirm({
+        title: 'Confirm Booking',
+        message: `Are you sure you want to book "${trek.name}"?`,
+        confirmLabel: 'Book Now',
+        confirmClass: 'btn-primary'
+      })
+      if (!confirmed) return
       
       bookingInProgress.value = trek.id
       try {
@@ -135,11 +149,11 @@ export default {
         const data = await response.json()
         if (!response.ok) throw new Error(data.msg || 'Failed to book trek')
         
-        alert(`Successfully booked ${trek.name}! Check your bookings tab.`)
+        success(`"${trek.name}" booked successfully! Check your bookings tab.`)
         // Update local available slots
         trek.available_slots -= 1
       } catch (err) {
-        alert(err.message)
+        toastError(err.message)
       } finally {
         bookingInProgress.value = null
       }
@@ -147,7 +161,7 @@ export default {
 
     onMounted(fetchTreks)
 
-    return { treks, loading, error, filters, filteredTreks, bookTrek, bookingInProgress }
+    return { treks, loading, error, filters, filteredTreks, bookTrek, bookingInProgress, getRandomTrekImage }
   }
 }
 </script>
