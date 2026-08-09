@@ -56,9 +56,9 @@ export default {
           localStorage.setItem('tma_token', data.access_token)
           localStorage.setItem('tma_user', JSON.stringify(data.user))
           success(`Welcome back, ${data.user.username}!`)
-          if (data.user.role === 'Admin') router.push('/admin')
-          else if (data.user.role === 'Trek Staff') router.push('/staff')
-          else router.push('/trekker')
+          if (data.user.role === 'Admin') router.replace('/admin')
+          else if (data.user.role === 'Trek Staff') router.replace('/staff')
+          else router.replace('/trekker')
         } else { error.value = data.msg || 'Login failed' }
       } catch { error.value = 'Network error. Please try again.' }
       finally { loading.value = false }

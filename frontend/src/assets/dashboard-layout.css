@@ -234,6 +234,7 @@ select option { background: var(--card-solid); color: var(--text-1); }
   flex-direction: column;
   gap: 0.25rem;
   flex: 1;
+  justify-content: space-between;
 }
 
 .nav-item {
@@ -312,7 +313,7 @@ select option { background: var(--card-solid); color: var(--text-1); }
   font-size: 0.7rem;
   letter-spacing: 0.06em;
   z-index: 10;
-  box-shadow: 0 1px 0 var(--border);
+  box-shadow: 1px 0 var(--border);
 }
 .premium-table tr:hover td { background: rgba(255, 255, 255, 0.04); }
 

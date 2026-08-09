@@ -3,10 +3,10 @@
     <div class="sidebar-backdrop" :class="{ 'is-visible': sidebarOpen }" @click="sidebarOpen = false"></div>
     <AdminSidebar :class="{ 'is-open': sidebarOpen }" />
     <main class="admin-content">
-      <router-view />
+      <router-view :key="$route.fullPath" />
     </main>
     <button class="sidebar-toggle-btn" @click="sidebarOpen = !sidebarOpen" aria-label="Toggle sidebar">
-      <i :class="sidebarOpen ? 'bi bi-x-lg' : 'bi bi-layout-sidebar'"></i>
+      <span>{{ sidebarOpen ? "?" : "?" }}</span>
     </button>
   </div>
 </template>

@@ -6,15 +6,24 @@
 import { Chart, defaults } from 'chart.js'
 
 export function applyChartDefaults() {
+  // Ensure Chart.js defaults objects exist before mutating nested properties
   defaults.color = '#94a3b8'           // axis labels, legend text
   defaults.borderColor = 'rgba(255,255,255,0.07)'  // grid lines
   defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
   defaults.font.size = 12
 
+  // Initialise nested plugin objects if they are undefined (Chart.js v4 safety)
+  if (!defaults.plugins) defaults.plugins = {}
+  if (!defaults.plugins.legend) defaults.plugins.legend = {}
+  if (!defaults.plugins.legend.labels) defaults.plugins.legend.labels = {}
+  if (!defaults.plugins.tooltip) defaults.plugins.tooltip = {}
+
+  // Legend styling
   defaults.plugins.legend.labels.color = '#94a3b8'
   defaults.plugins.legend.labels.padding = 16
   defaults.plugins.legend.labels.usePointStyle = true
 
+  // Tooltip styling
   defaults.plugins.tooltip.backgroundColor = 'rgba(15,23,42,0.92)'
   defaults.plugins.tooltip.titleColor = '#f8fafc'
   defaults.plugins.tooltip.bodyColor = '#94a3b8'

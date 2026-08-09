@@ -12,7 +12,7 @@
     <div v-else class="stats-grid">
 
       <div class="stat-card glass-panel">
-        <div class="stat-icon treks"><i class="bi bi-map-fill"></i></div>
+        <div class="stat-icon treks">??</div>
         <div class="stat-content">
           <h3>Total Treks</h3>
           <p class="stat-value">{{ stats.total_treks }}</p>
@@ -20,7 +20,7 @@
       </div>
 
       <div class="stat-card glass-panel">
-        <div class="stat-icon users"><i class="bi bi-people-fill"></i></div>
+        <div class="stat-icon users">??</div>
         <div class="stat-content">
           <h3>Registered Users</h3>
           <p class="stat-value">{{ stats.total_users }}</p>
@@ -28,7 +28,7 @@
       </div>
 
       <div class="stat-card glass-panel">
-        <div class="stat-icon staff"><i class="bi bi-person-badge-fill"></i></div>
+        <div class="stat-icon staff">??</div>
         <div class="stat-content">
           <h3>Trek Staff</h3>
           <p class="stat-value">{{ stats.total_staff }}</p>
@@ -36,7 +36,7 @@
       </div>
 
       <div class="stat-card glass-panel">
-        <div class="stat-icon bookings"><i class="bi bi-calendar-check-fill"></i></div>
+        <div class="stat-icon bookings">??</div>
         <div class="stat-content">
           <h3>Total Bookings</h3>
           <p class="stat-value">{{ stats.total_bookings }}</p>
@@ -50,13 +50,13 @@
       <h3 style="margin:0 0 1.1rem;font-size:1rem;font-weight:700;">Quick Actions</h3>
       <div style="display:flex;gap:.85rem;flex-wrap:wrap;">
         <a :href="reportUrl" target="_blank" class="btn-premium btn-success">
-          <i class="bi bi-file-earmark-bar-graph-fill"></i> Download Monthly Report
+          ?? Download Monthly Report
         </a>
         <router-link to="/admin/analytics" class="btn-premium btn-outline">
-          <i class="bi bi-bar-chart-fill"></i> View Analytics
+          ?? View Analytics
         </router-link>
         <router-link to="/admin/treks" class="btn-premium btn-outline">
-          <i class="bi bi-map-fill"></i> Manage Treks
+          ?? Manage Treks
         </router-link>
       </div>
     </div>

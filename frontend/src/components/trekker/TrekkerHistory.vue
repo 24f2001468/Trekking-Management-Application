@@ -6,26 +6,26 @@
         <p>Your complete trekking journey — completed, cancelled, and active.</p>
       </div>
       <button @click="triggerExport" class="btn-premium btn-primary" :disabled="exporting">
-        <i class="bi bi-download"></i> {{ exporting ? 'Exporting…' : 'Export CSV' }}
+        ? {{ exporting ? 'Exporting…' : 'Export CSV' }}
       </button>
     </div>
 
     <!-- Stats Strip -->
     <div class="stats-grid" style="margin-bottom:1.75rem;" v-if="!loading && !error">
       <div class="stat-card glass-panel">
-        <div class="stat-icon treks"><i class="bi bi-calendar-check-fill"></i></div>
+        <div class="stat-icon treks">??</div>
         <div class="stat-content"><h3>Total Bookings</h3><p class="stat-value">{{ bookings.length }}</p></div>
       </div>
       <div class="stat-card glass-panel">
-        <div class="stat-icon users"><i class="bi bi-trophy-fill"></i></div>
+        <div class="stat-icon users">??</div>
         <div class="stat-content"><h3>Completed</h3><p class="stat-value">{{ completed }}</p></div>
       </div>
       <div class="stat-card glass-panel">
-        <div class="stat-icon bookings"><i class="bi bi-hourglass-split"></i></div>
+        <div class="stat-icon bookings">?</div>
         <div class="stat-content"><h3>Active</h3><p class="stat-value">{{ active }}</p></div>
       </div>
       <div class="stat-card glass-panel">
-        <div class="stat-icon staff"><i class="bi bi-x-circle-fill"></i></div>
+        <div class="stat-icon staff">?</div>
         <div class="stat-content"><h3>Cancelled</h3><p class="stat-value">{{ cancelled }}</p></div>
       </div>
     </div>

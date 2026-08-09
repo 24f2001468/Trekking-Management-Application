@@ -9,7 +9,7 @@
 
       <!-- ── Account Info ── -->
       <div class="glass-panel section-card">
-        <h3 class="section-title"><i class="bi bi-person-fill"></i> Account Details</h3>
+        <h3 class="section-title">?? Account Details</h3>
 
         <div v-if="infoSuccess" class="alert-ok">{{ infoSuccess }}</div>
         <div v-if="infoError"   class="alert-err">{{ infoError }}</div>
@@ -33,7 +33,7 @@
 
       <!-- ── Change Password ── -->
       <div class="glass-panel section-card">
-        <h3 class="section-title"><i class="bi bi-shield-lock-fill"></i> Change Password</h3>
+        <h3 class="section-title">?? Change Password</h3>
 
         <div v-if="pwSuccess" class="alert-ok">{{ pwSuccess }}</div>
         <div v-if="pwError"   class="alert-err">{{ pwError }}</div>
@@ -62,7 +62,7 @@
 
       <!-- ── Account Stats ── -->
       <div class="glass-panel section-card stats-card" v-if="profile">
-        <h3 class="section-title"><i class="bi bi-info-circle-fill"></i> Account Info</h3>
+        <h3 class="section-title">? Account Info</h3>
         <div class="info-row"><span>User ID</span><strong>#{{ profile.id }}</strong></div>
         <div class="info-row"><span>Role</span><strong>{{ profile.role }}</strong></div>
         <div class="info-row">

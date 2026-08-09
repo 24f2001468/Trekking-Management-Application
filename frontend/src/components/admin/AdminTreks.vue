@@ -3,7 +3,7 @@
     <div class="page-header">
       <h1>Manage Treks</h1>
       <button class="btn-premium btn-primary" @click="openCreateModal">
-        <i class="bi bi-plus-lg"></i> New Trek
+        + New Trek
       </button>
     </div>
 
@@ -14,7 +14,6 @@
       <table class="premium-table">
         <thead>
           <tr>
-            <th>Image</th>
             <th>ID</th>
             <th>Name</th>
             <th>Location</th>
@@ -27,7 +26,6 @@
         </thead>
         <tbody>
           <tr v-for="t in treks" :key="t.id">
-            <td data-label="Image"><img :src="getRandomTrekImage(t.id)" alt="Trek Image" style="width:60px;height:40px;object-fit:cover;border-radius:4px;"/></td>
             <td data-label="ID">#{{ t.id }}</td>
             <td data-label="Name"><strong>{{ t.name }}</strong></td>
             <td data-label="Location">{{ t.location }}</td>
@@ -42,13 +40,13 @@
             </td>
             <td data-label="Actions">
               <div class="action-row">
-                <button class="btn-premium btn-ghost btn-sm" @click="openEditModal(t)" title="Edit"><i class="bi bi-pencil-fill"></i></button>
-                <button class="btn-premium btn-danger btn-sm" @click="deleteTrek(t.id)" title="Delete"><i class="bi bi-trash3-fill"></i></button>
+                <button class="btn-premium btn-ghost btn-sm" @click="openEditModal(t)" title="Edit">?</button>
+                <button class="btn-premium btn-danger btn-sm" @click="deleteTrek(t.id)" title="Delete">??</button>
               </div>
             </td>
           </tr>
           <tr v-if="treks.length === 0">
-            <td colspan="8" class="empty-cell">No treks found.</td>
+            <td colspan="7" class="empty-cell">No treks found.</td>
           </tr>
         </tbody>
       </table>
@@ -59,7 +57,7 @@
       <div class="modal-content glass-panel modal-pad">
         <div class="modal-header-row">
           <h2>{{ editingTrek ? 'Edit Trek' : 'New Trek' }}</h2>
-          <button class="btn-premium btn-ghost btn-sm" @click="showModal=false"><i class="bi bi-x-lg"></i></button>
+          <button class="btn-premium btn-ghost btn-sm" @click="showModal=false">?</button>
         </div>
         <form @submit.prevent="saveTrek">
           <div class="form-group">
@@ -125,7 +123,7 @@
       <div class="modal-content glass-panel modal-pad">
         <div class="modal-header-row">
           <h2>Assign Staff</h2>
-          <button class="btn-premium btn-ghost btn-sm" @click="showAssignModal=false"><i class="bi bi-x-lg"></i></button>
+          <button class="btn-premium btn-ghost btn-sm" @click="showAssignModal=false">?</button>
         </div>
         <p class="muted" style="margin:0 0 1.25rem;">Trek: <strong>{{ selectedTrek?.name }}</strong></p>
         <div class="form-group">
@@ -206,8 +204,11 @@ export default {
         showAssignModal.value=false; success('Staff assigned.')
       } catch(e){toastError(e.message)} finally{submitting.value=false}
     }
-    onMounted(()=>{ fetchTreks(); fetchStaff() })
-    return { treks, loading, error, showModal, editingTrek, form, submitting, openCreateModal, openEditModal, saveTrek, deleteTrek, showAssignModal, selectedTrek, selectedStaffId, staffList, openAssignModal, assignStaff, getRandomTrekImage }
+
+    const getRandomTrekImage = (id) => `https://picsum.photos/seed/${id}/60/40`;
+
+    onMounted(() => { fetchTreks(); fetchStaff() })
+    return { treks, loading, error, showModal, editingTrek, form, submitting, openCreateModal, openEditModal, saveTrek, deleteTrek, showAssignModal, selectedTrek, selectedStaffId, staffList, openAssignModal, assignStaff }
   }
 }
 </script>

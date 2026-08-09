@@ -5,19 +5,17 @@
       <p class="subtitle">Management Console</p>
     </div>
     <nav class="sidebar-nav">
-      <router-link to="/admin"            class="nav-item" exact-active-class="active"><i class="icon bi bi-grid-1x2-fill"></i> Dashboard</router-link>
-      <router-link to="/admin/treks"      class="nav-item" active-class="active"><i class="icon bi bi-map-fill"></i> Treks</router-link>
-      <router-link to="/admin/users"      class="nav-item" active-class="active"><i class="icon bi bi-people-fill"></i> Users</router-link>
-      <router-link to="/admin/staff"      class="nav-item" active-class="active"><i class="icon bi bi-person-badge-fill"></i> Staff</router-link>
-      <router-link to="/admin/bookings"   class="nav-item" active-class="active"><i class="icon bi bi-calendar-check-fill"></i> Bookings</router-link>
-      <router-link to="/admin/payments"   class="nav-item" active-class="active"><i class="icon bi bi-credit-card-fill"></i> Payments</router-link>
-      <router-link to="/admin/trek-search" class="nav-item" active-class="active"><i class="icon bi bi-search"></i> Trek Search</router-link>
-      <router-link to="/admin/analytics"  class="nav-item" active-class="active"><i class="icon bi bi-bar-chart-fill"></i> Analytics</router-link>
+      <router-link to="/admin"             class="nav-item" exact-active-class="active">Dashboard</router-link>
+      <router-link to="/admin/treks"       class="nav-item" active-class="active">Treks</router-link>
+      <router-link to="/admin/users"       class="nav-item" active-class="active">Users</router-link>
+      <router-link to="/admin/staff"       class="nav-item" active-class="active">Staff</router-link>
+      <router-link to="/admin/bookings"    class="nav-item" active-class="active">Bookings</router-link>
+      <router-link to="/admin/payments"    class="nav-item" active-class="active">Payments</router-link>
+      <router-link to="/admin/trek-search" class="nav-item" active-class="active">Trek Search</router-link>
+      <router-link to="/admin/analytics"   class="nav-item" active-class="active">Analytics</router-link>
     </nav>
     <div class="sidebar-footer">
-      <button @click="logout" class="btn-premium btn-danger" style="width:100%;">
-        <i class="bi bi-box-arrow-right"></i> Logout
-      </button>
+      <button @click="logout" class="btn-premium btn-danger" style="width:100%;">Logout</button>
     </div>
   </aside>
 </template>

@@ -5,7 +5,7 @@
       <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
         <input type="text" v-model="searchQuery" placeholder="Search staff…" class="premium-input" style="width:220px;">
         <button class="btn-premium btn-primary" @click="showAddModal = true">
-          <i class="bi bi-person-plus-fill"></i> Add Staff
+          + Add Staff
         </button>
       </div>
     </div>
@@ -52,7 +52,7 @@
       <div class="modal-content glass-panel modal-pad">
         <div class="modal-hdr">
           <h2>Add New Staff</h2>
-          <button class="btn-premium btn-ghost btn-sm" @click="showAddModal=false"><i class="bi bi-x-lg"></i></button>
+          <button class="btn-premium btn-ghost btn-sm" @click="showAddModal=false">?</button>
         </div>
         <form @submit.prevent="addStaff">
           <div class="form-group">
