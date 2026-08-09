@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <div class="page-header">
       <h1>Analytics</h1>
@@ -25,7 +25,7 @@
 
         <div class="chart-card glass-panel">
           <div class="chart-header">
-            <h3>👥 Monthly Unique Participants</h3>
+            <h3><i class="bi bi-people-fill"></i> Monthly Unique Participants</h3>
             <span class="chart-sub">Distinct trekkers active per month</span>
           </div>
           <div class="chart-body">
@@ -38,7 +38,7 @@
       <!-- ── Row 2: Top Treks (horizontal bar) ── -->
       <div class="chart-card glass-panel" style="margin-bottom: 2rem;">
         <div class="chart-header">
-          <h3>🏆 Most Popular Treks</h3>
+          <h3><i class="bi bi-trophy-fill"></i> Most Popular Treks</h3>
           <span class="chart-sub">Ranked by confirmed participant count</span>
         </div>
         <div class="chart-body chart-body--tall">
@@ -71,7 +71,7 @@
 
         <div class="chart-card glass-panel">
           <div class="chart-header">
-            <h3>💳 Payment Status</h3>
+            <h3><i class="bi bi-credit-card-fill"></i> Payment Status</h3>
             <span class="chart-sub">Payment completion breakdown</span>
           </div>
           <div class="chart-body chart-body--sm">
@@ -112,7 +112,7 @@ export default {
     const fetchAnalytics = async () => {
       try {
         const token = localStorage.getItem('tma_token')
-        const res = await fetch('http://localhost:5000/api/analytics/admin/overview', {
+        const res = await fetch('/api/analytics/admin/overview', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (!res.ok) throw new Error('Failed to load analytics')

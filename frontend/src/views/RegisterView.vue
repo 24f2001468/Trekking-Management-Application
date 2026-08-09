@@ -1,8 +1,8 @@
-<template>
+﻿<template>
   <div class="auth-page">
     <div class="auth-card glass-panel">
       <div class="auth-logo">
-        <span class="icon-wrap">🏔️</span>
+        <span class="icon-wrap"><i class="bi bi-signpost-split-fill text-success"></i></span>
         <span class="logo-name">TMA</span>
       </div>
       <h2 class="auth-title">Create Account</h2>

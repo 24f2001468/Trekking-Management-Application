@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <div class="page-header">
       <h1>Trek Search</h1>
@@ -42,7 +42,7 @@
           <input type="date" v-model="filters.to_date" class="premium-input" :title="'To date'">
         </div>
         <button @click="doSearch" class="btn-premium btn-primary" :disabled="loading">
-          🔍 Search
+          <i class="bi bi-search"></i> Search
         </button>
         <button @click="resetFilters" class="btn-premium" style="background: rgba(255,255,255,0.08); color: var(--text-secondary);">
           Reset
@@ -154,7 +154,7 @@ export default {
         if (filters.value.from_date) params.set('from_date', filters.value.from_date)
         if (filters.value.to_date) params.set('to_date', filters.value.to_date)
 
-        const res = await fetch(`http://localhost:5000/api/treks/search?${params.toString()}`, {
+        const res = await fetch(`/api/treks/search?${params.toString()}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (!res.ok) throw new Error('Search failed')

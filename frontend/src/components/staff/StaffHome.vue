@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <div class="page-header">
       <h1>My Staff Dashboard</h1>
@@ -10,7 +10,7 @@
     <div v-else class="stats-grid">
       
       <div class="stat-card glass-panel">
-        <div class="stat-icon treks">🏔️</div>
+        <div class="stat-icon treks"><i class="bi bi-map-fill"></i></div>
         <div class="stat-content">
           <h3>Assigned Treks</h3>
           <p class="stat-value">{{ treks.length }}</p>
@@ -18,7 +18,7 @@
       </div>
 
       <div class="stat-card glass-panel">
-        <div class="stat-icon users">👥</div>
+        <div class="stat-icon users"><i class="bi bi-people-fill"></i></div>
         <div class="stat-content">
           <h3>Total Trekkers</h3>
           <p class="stat-value">{{ totalTrekkers }}</p>
@@ -75,7 +75,7 @@ export default {
     const fetchTreks = async () => {
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch('http://localhost:5000/api/staff/treks', {
+        const response = await fetch('/api/staff/treks', {
           headers: {
             'Authorization': `Bearer ${token}`
           }

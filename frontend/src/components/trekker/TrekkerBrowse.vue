@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <div class="page-header">
       <h1>Browse Treks</h1>
@@ -95,7 +95,7 @@ export default {
     const fetchTreks = async () => {
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch('http://localhost:5000/api/trekker/treks/open', {
+        const response = await fetch('/api/trekker/treks/open', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (!response.ok) throw new Error('Failed to load treks')
@@ -137,7 +137,7 @@ export default {
       bookingInProgress.value = trek.id
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch('http://localhost:5000/api/trekker/bookings', {
+        const response = await fetch('/api/trekker/bookings', {
           method: 'POST',
           headers: { 
             'Authorization': `Bearer ${token}`,

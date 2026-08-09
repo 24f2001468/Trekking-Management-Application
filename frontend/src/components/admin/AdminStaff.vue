@@ -1,11 +1,11 @@
-<template>
+﻿<template>
   <div>
     <div class="page-header">
       <h1>Manage Staff</h1>
       <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
         <input type="text" v-model="searchQuery" placeholder="Search staff…" class="premium-input" style="width:220px;">
         <button class="btn-premium btn-primary" @click="showAddModal = true">
-          + Add Staff
+          <i class="bi bi-person-plus-fill"></i> Add Staff
         </button>
       </div>
     </div>
@@ -111,7 +111,7 @@ export default {
     const fetchStaff = async () => {
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch('http://localhost:5000/api/admin/staff', {
+        const response = await fetch('/api/admin/staff', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (!response.ok) throw new Error('Failed to load staff')
@@ -134,7 +134,7 @@ export default {
       if (!confirmed) return
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch(`http://localhost:5000/api/admin/staff/${s.id}/status`, {
+        const response = await fetch(`/api/admin/staff/${s.id}/status`, {
           method: 'PUT',
           headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -152,7 +152,7 @@ export default {
       submitting.value = true
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch('http://localhost:5000/api/admin/staff', {
+        const response = await fetch('/api/admin/staff', {
           method: 'POST',
           headers: { 
             'Authorization': `Bearer ${token}`,

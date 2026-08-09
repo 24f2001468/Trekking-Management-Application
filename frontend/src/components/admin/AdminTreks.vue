@@ -1,9 +1,9 @@
-<template>
+﻿<template>
   <div>
     <div class="page-header">
       <h1>Manage Treks</h1>
       <button class="btn-premium btn-primary" @click="openCreateModal">
-        + New Trek
+        <i class="bi bi-plus-lg"></i> New Trek
       </button>
     </div>
 
@@ -40,8 +40,8 @@
             </td>
             <td data-label="Actions">
               <div class="action-row">
-                <button class="btn-premium btn-ghost btn-sm" @click="openEditModal(t)" title="Edit">?</button>
-                <button class="btn-premium btn-danger btn-sm" @click="deleteTrek(t.id)" title="Delete">??</button>
+                <button class="btn-premium btn-ghost btn-sm" @click="openEditModal(t)" title="Edit"><i class="bi bi-pencil-fill"></i></button>
+                <button class="btn-premium btn-danger btn-sm" @click="deleteTrek(t.id)" title="Delete"><i class="bi bi-trash3-fill"></i></button>
               </div>
             </td>
           </tr>
@@ -57,7 +57,7 @@
       <div class="modal-content glass-panel modal-pad">
         <div class="modal-header-row">
           <h2>{{ editingTrek ? 'Edit Trek' : 'New Trek' }}</h2>
-          <button class="btn-premium btn-ghost btn-sm" @click="showModal=false">?</button>
+          <button class="btn-premium btn-ghost btn-sm" @click="showModal=false"><i class="bi bi-x-lg"></i></button>
         </div>
         <form @submit.prevent="saveTrek">
           <div class="form-group">
@@ -123,7 +123,7 @@
       <div class="modal-content glass-panel modal-pad">
         <div class="modal-header-row">
           <h2>Assign Staff</h2>
-          <button class="btn-premium btn-ghost btn-sm" @click="showAssignModal=false">?</button>
+          <button class="btn-premium btn-ghost btn-sm" @click="showAssignModal=false"><i class="bi bi-x-lg"></i></button>
         </div>
         <p class="muted" style="margin:0 0 1.25rem;">Trek: <strong>{{ selectedTrek?.name }}</strong></p>
         <div class="form-group">
@@ -148,7 +148,7 @@
 import { ref, onMounted } from 'vue'
 import { useConfirm } from '../../composables/useConfirm.js'
 import { useToast } from '../../composables/useToast.js'
-const API = 'http://localhost:5000'
+const API = ''
 const tok = () => localStorage.getItem('tma_token')
 export default {
   name: 'AdminTreks',

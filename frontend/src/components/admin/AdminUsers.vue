@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <div class="page-header">
       <h1>Manage Users</h1>
@@ -64,7 +64,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useConfirm } from '../../composables/useConfirm.js'
 import { useToast } from '../../composables/useToast.js'
 
-const API = 'http://localhost:5000'
+const API = ''
 const tok = () => localStorage.getItem('tma_token')
 
 export default {

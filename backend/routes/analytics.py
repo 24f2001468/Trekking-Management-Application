@@ -24,7 +24,6 @@ def admin_required(fn):
 # ── PUBLIC (no auth) ──────────────────────────────────────
 
 @analytics_bp.route('/public/stats', methods=['GET'])
-@cache.cached(timeout=300, key_prefix='public_stats')
 def public_stats():
     total_treks     = Trek.query.count()
     open_treks      = Trek.query.filter_by(status='Open').count()

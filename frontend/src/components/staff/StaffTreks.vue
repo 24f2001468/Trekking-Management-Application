@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <div class="page-header">
       <h1>My Assigned Treks</h1>
@@ -65,7 +65,7 @@ export default {
     const fetchTreks = async () => {
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch('http://localhost:5000/api/staff/treks', {
+        const response = await fetch('/api/staff/treks', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (!response.ok) throw new Error('Failed to load treks')

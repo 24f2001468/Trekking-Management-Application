@@ -4,8 +4,7 @@ import router from './router'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap'
-import '@/assets/custom.css'
-// import './assets/dashboard-layout.css' // removed per Bootstrap‑only styling plan
+import './assets/dashboard-layout.css'
 
 // Register all Chart.js components globally
 import {
@@ -22,23 +21,5 @@ Chart.register(
 applyChartDefaults()
 
 const app = createApp(App)
-
 app.use(router)
-
 app.mount('#app')
-
-// Clear caches and unregister service workers on load to avoid stale assets
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(regs => {
-    for (const reg of regs) {
-      reg.unregister()
-    }
-  })
-}
-if ('caches' in window) {
-  caches.keys().then(keys => {
-    for (const key of keys) {
-      caches.delete(key)
-    }
-  })
-}

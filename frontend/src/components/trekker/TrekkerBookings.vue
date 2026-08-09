@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
       <div>
@@ -6,7 +6,7 @@
         <p style="color: var(--text-secondary); margin-top: 0.5rem;">Manage your trekking history and active bookings.</p>
       </div>
       <button @click="triggerExport" class="btn-premium btn-primary" :disabled="exporting">
-        {{ exporting ? 'Exporting...' : '📄 Export History (CSV)' }}
+        <i class="bi bi-download"></i> {{ exporting ? 'Exporting...' : 'Export History (CSV)' }}
       </button>
     </div>
 
@@ -60,7 +60,7 @@
                   class="btn-premium btn-success"
                   style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"
                 >
-                  💳 Pay Now
+                  <i class="bi bi-credit-card-fill"></i> Pay Now
                 </button>
                 <button 
                   v-if="b.status === 'Booked'"
@@ -128,7 +128,7 @@ export default {
       paymentModalOpen.value = false
       try {
         const token = localStorage.getItem('tma_token')
-        const res = await fetch(`http://localhost:5000/api/admin/bookings/${payingBooking.value.id}/pay`, {
+        const res = await fetch(`/api/admin/bookings/${payingBooking.value.id}/pay`, {
           method: 'PUT',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ payment_status: 'Paid' })
@@ -155,7 +155,7 @@ export default {
       info('Generating your CSV export...')
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch('http://localhost:5000/api/trekker/export', {
+        const response = await fetch('/api/trekker/export', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -183,7 +183,7 @@ export default {
       const token = localStorage.getItem('tma_token')
       const checkStatus = async () => {
         try {
-          const response = await fetch(`http://localhost:5000/api/trekker/export/${taskId}`, {
+          const response = await fetch(`/api/trekker/export/${taskId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           })
           const data = await response.json()
@@ -219,7 +219,7 @@ export default {
     const fetchBookings = async () => {
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch('http://localhost:5000/api/trekker/bookings', {
+        const response = await fetch('/api/trekker/bookings', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (!response.ok) throw new Error('Failed to load bookings')
@@ -243,7 +243,7 @@ export default {
       cancelling.value = id
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch(`http://localhost:5000/api/trekker/bookings/${id}/cancel`, {
+        const response = await fetch(`/api/trekker/bookings/${id}/cancel`, {
           method: 'PUT',
           headers: { 'Authorization': `Bearer ${token}` }
         })

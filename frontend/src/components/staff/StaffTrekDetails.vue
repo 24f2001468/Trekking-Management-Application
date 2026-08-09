@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <div class="page-header">
       <div>
@@ -117,7 +117,7 @@ export default {
     const fetchTrek = async () => {
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch(`http://localhost:5000/api/staff/treks/${trekId}`, {
+        const response = await fetch(`/api/staff/treks/${trekId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (!response.ok) throw new Error('Failed to load trek details')
@@ -132,7 +132,7 @@ export default {
     const fetchParticipants = async () => {
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch(`http://localhost:5000/api/staff/treks/${trekId}/participants`, {
+        const response = await fetch(`/api/staff/treks/${trekId}/participants`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (response.ok) {
@@ -148,7 +148,7 @@ export default {
       submittingTrek.value = true
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch(`http://localhost:5000/api/staff/treks/${trekId}`, {
+        const response = await fetch(`/api/staff/treks/${trekId}`, {
           method: 'PUT',
           headers: { 
             'Authorization': `Bearer ${token}`,
@@ -170,7 +170,7 @@ export default {
     const updateParticipantStatus = async (participant) => {
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch(`http://localhost:5000/api/staff/bookings/${participant.id}/status`, {
+        const response = await fetch(`/api/staff/bookings/${participant.id}/status`, {
           method: 'PUT',
           headers: { 
             'Authorization': `Bearer ${token}`,

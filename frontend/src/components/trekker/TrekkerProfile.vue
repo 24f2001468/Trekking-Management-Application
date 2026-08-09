@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <div class="page-header">
       <h1>My Profile</h1>
@@ -9,7 +9,7 @@
 
       <!-- ── Account Info ── -->
       <div class="glass-panel section-card">
-        <h3 class="section-title">?? Account Details</h3>
+        <h3 class="section-title"><i class="bi bi-person-fill"></i> Account Details</h3>
 
         <div v-if="infoSuccess" class="alert-ok">{{ infoSuccess }}</div>
         <div v-if="infoError"   class="alert-err">{{ infoError }}</div>
@@ -33,7 +33,7 @@
 
       <!-- ── Change Password ── -->
       <div class="glass-panel section-card">
-        <h3 class="section-title">?? Change Password</h3>
+        <h3 class="section-title"><i class="bi bi-shield-lock-fill"></i> Change Password</h3>
 
         <div v-if="pwSuccess" class="alert-ok">{{ pwSuccess }}</div>
         <div v-if="pwError"   class="alert-err">{{ pwError }}</div>
@@ -81,7 +81,7 @@
 import { ref, onMounted } from 'vue'
 import { useToast } from '../../composables/useToast.js'
 
-const API = 'http://localhost:5000'
+const API = ''
 const tok = () => localStorage.getItem('tma_token')
 
 export default {

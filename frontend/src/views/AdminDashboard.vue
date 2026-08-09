@@ -6,11 +6,10 @@
       <router-view :key="$route.fullPath" />
     </main>
     <button class="sidebar-toggle-btn" @click="sidebarOpen = !sidebarOpen" aria-label="Toggle sidebar">
-      <span>{{ sidebarOpen ? "?" : "?" }}</span>
+      <i :class="sidebarOpen ? 'bi bi-x-lg' : 'bi bi-layout-sidebar'"></i>
     </button>
   </div>
 </template>
-
 <script>
 import { ref } from 'vue'
 import AdminSidebar from '../components/admin/AdminSidebar.vue'

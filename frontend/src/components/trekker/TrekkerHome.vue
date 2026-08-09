@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <div class="page-header">
       <h1>Welcome back, {{ username }}!</h1>
@@ -10,7 +10,7 @@
     <div v-else>
       <div class="stats-grid">
         <div class="stat-card glass-panel">
-          <div class="stat-icon treks">📅</div>
+          <div class="stat-icon treks"><i class="bi bi-calendar-check-fill"></i></div>
           <div class="stat-content">
             <h3>Total Bookings</h3>
             <p class="stat-value">{{ bookings.length }}</p>
@@ -18,7 +18,7 @@
         </div>
         
         <div class="stat-card glass-panel">
-          <div class="stat-icon users">🏔️</div>
+          <div class="stat-icon users"><i class="bi bi-trophy-fill"></i></div>
           <div class="stat-content">
             <h3>Completed Treks</h3>
             <p class="stat-value">{{ completedCount }}</p>
@@ -81,7 +81,7 @@ export default {
         }
         
         const token = localStorage.getItem('tma_token')
-        const response = await fetch('http://localhost:5000/api/trekker/bookings', {
+        const response = await fetch('/api/trekker/bookings', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (!response.ok) throw new Error('Failed to load dashboard data')

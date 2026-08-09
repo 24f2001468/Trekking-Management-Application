@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Teleport to="body">
     <Transition name="modal-fade">
       <div v-if="visible" class="pay-overlay" @click.self="cancel" role="dialog" aria-modal="true" aria-labelledby="pay-title">
@@ -6,7 +6,7 @@
 
           <!-- Header -->
           <div class="pay-header">
-            <h2 id="pay-title">💳 Payment Simulation</h2>
+            <h2 id="pay-title"><i class="bi bi-credit-card-fill"></i> Payment Simulation</h2>
             <button class="pay-close" @click="cancel" aria-label="Close">×</button>
           </div>
 
@@ -159,10 +159,10 @@ export default {
 
     const cardIcon = computed(() => {
       const n = card.value.number.replace(/\s/g, '')
-      if (n.startsWith('4')) return '💳 Visa'
-      if (n.startsWith('5')) return '💳 MC'
-      if (n.startsWith('3')) return '💳 Amex'
-      return '💳'
+      if (n.startsWith('4')) return 'Visa'
+      if (n.startsWith('5')) return 'Mastercard'
+      if (n.startsWith('3')) return 'Amex'
+      return 'Card'
     })
 
     const formatCardNumber = (e) => {

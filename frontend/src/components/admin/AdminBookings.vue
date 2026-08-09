@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <div class="page-header">
       <h1>All Bookings</h1>
@@ -102,7 +102,7 @@ export default {
     const fetchBookings = async () => {
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch('http://localhost:5000/api/admin/bookings', {
+        const response = await fetch('/api/admin/bookings', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (!response.ok) throw new Error('Failed to load bookings')
@@ -117,7 +117,7 @@ export default {
     const fetchStats = async () => {
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch('http://localhost:5000/api/admin/stats/revenue', {
+        const response = await fetch('/api/admin/stats/revenue', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (response.ok) payStats.value = await response.json()
@@ -131,7 +131,7 @@ export default {
     const updateBookingStatus = async (booking) => {
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch(`http://localhost:5000/api/admin/bookings/${booking.id}/status`, {
+        const response = await fetch(`/api/admin/bookings/${booking.id}/status`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -158,7 +158,7 @@ export default {
     const updatePaymentStatus = async (booking) => {
       try {
         const token = localStorage.getItem('tma_token')
-        const response = await fetch(`http://localhost:5000/api/admin/bookings/${booking.id}/payment`, {
+        const response = await fetch(`/api/admin/bookings/${booking.id}/payment`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
