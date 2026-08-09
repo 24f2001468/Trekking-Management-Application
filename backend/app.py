@@ -24,9 +24,16 @@ def create_app():
     app.config['JWT_SECRET_KEY'] = 'tma-super-secret-key-for-jwt-auth-2026!'
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
 
-    # Cache – Redis backend
-    app.config['CACHE_TYPE'] = 'RedisCache'
-    app.config['CACHE_REDIS_URL'] = 'redis://localhost:6379/0'
+    # Cache — Redis (mandatory per requirements)
+    # Falls back to SimpleCache if Redis is unavailable (development only)
+    try:
+        import redis as _redis
+        _r = _redis.Redis(host='localhost', port=6379)
+        _r.ping()
+        app.config['CACHE_TYPE'] = 'RedisCache'
+        app.config['CACHE_REDIS_URL'] = 'redis://localhost:6379/0'
+    except Exception:
+        app.config['CACHE_TYPE'] = 'SimpleCache'
     app.config['CACHE_DEFAULT_TIMEOUT'] = 300
 
     # ── Flask-Mail (configure via environment or change here) ──
@@ -57,10 +64,6 @@ def create_app():
                 return self.run(*args, **kwargs)
 
     celery_instance.Task = ContextTask
-
-    # ── APScheduler (daily reminders + monthly report) ──
-    from scheduler import init_scheduler
-    init_scheduler(app)
 
     # ── Register blueprints ───────────────────────
     from routes.auth import auth_bp

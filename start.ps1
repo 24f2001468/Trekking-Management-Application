@@ -48,11 +48,15 @@ Start-Process "powershell" -ArgumentList "-NoExit", "-Command", $flaskCmd
 
 Start-Sleep -Seconds 2
 
-# 4. Celery Worker — DISABLED (not needed, APScheduler handles scheduling)
-Write-Host "[4/6] Skipping Celery Worker (APScheduler handles scheduled jobs)..." -ForegroundColor Gray
+# 4. Celery Worker (required for CSV export and batch jobs)
+Write-Host "[4/5] Starting Celery Worker..." -ForegroundColor Yellow
+$celeryWorkerCmd = "& '" + $activateCmd + "'; cd '" + $backendPath + "'; celery -A celery_worker.celery_instance worker --pool=solo -l info"
+Start-Process "powershell" -ArgumentList "-NoExit", "-Command", $celeryWorkerCmd
 
-# 5. Celery Beat — DISABLED (not needed, APScheduler handles scheduling)
-Write-Host "[5/6] Skipping Celery Beat (APScheduler handles scheduled jobs)..." -ForegroundColor Gray
+# 5. Celery Beat (required for scheduled daily reminders + monthly reports)
+Write-Host "[5/5] Starting Celery Beat..." -ForegroundColor Yellow
+$celeryBeatCmd = "& '" + $activateCmd + "'; cd '" + $backendPath + "'; celery -A celery_worker.celery_instance beat -l info"
+Start-Process "powershell" -ArgumentList "-NoExit", "-Command", $celeryBeatCmd
 
 # 6. Vue Frontend
 Write-Host "[6/6] Starting Vue Frontend..." -ForegroundColor Yellow

@@ -148,7 +148,7 @@
 
 <script>
 import { ref, onMounted } from 'vue'
-import { getRandomTrekImage } from '../../composables/useRandomImage.js'
+import { useConfirm } from '../../composables/useConfirm.js'
 import { useToast } from '../../composables/useToast.js'
 const API = 'http://localhost:5000'
 const tok = () => localStorage.getItem('tma_token')

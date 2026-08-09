@@ -90,20 +90,25 @@ def cancel_booking(booking_id):
 @trekker_bp.route('/export', methods=['POST'])
 @trekker_required
 def export_history():
-    """Generate CSV export synchronously and return CSV data immediately.
-    This replaces the previous asynchronous Celery task to fix export failures.
+    """
+    Trigger async CSV export via Celery task.
+    Falls back to synchronous if Redis/Celery unavailable.
     """
     from tasks import export_user_history
     user_id = int(get_jwt_identity())
-    # Directly call the task function synchronously
-    csv_data = export_user_history(user_id)
-    # Return CSV data as JSON for the frontend to download
-    return jsonify({"state": "SUCCESS", "csv_data": csv_data}), 200
+    try:
+        # Try async Celery dispatch first (requires Redis)
+        task = export_user_history.delay(user_id)
+        return jsonify({"task_id": task.id}), 202
+    except Exception:
+        # Fallback: run synchronously if Celery/Redis not available
+        csv_data = export_user_history(user_id)
+        return jsonify({"state": "SUCCESS", "csv_data": csv_data}), 200
 
 @trekker_bp.route('/export/<task_id>', methods=['GET'])
 @trekker_required
 def export_status(task_id):
-    """Legacy endpoint for async export (kept for compatibility)."""
+    """Poll status of a Celery CSV export task."""
     from celery_app import celery_instance
     task_result = celery_instance.AsyncResult(task_id)
     if task_result.state == 'PENDING':
